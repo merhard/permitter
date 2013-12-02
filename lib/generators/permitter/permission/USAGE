@@ -1,0 +1,5 @@
+Description:
+  The permitter:permission generator creates a Permission class in the models
+  directory. You can move this file anywhere you want as long as it
+  is in the load path. A spec file is also generated if a spec
+  directory exists.
