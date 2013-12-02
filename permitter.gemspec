@@ -20,4 +20,5 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency "sqlite3", "~> 1.3.8"
   s.add_development_dependency "rspec", "~> 2.14.1"
+  s.add_development_dependency "pry", "~> 0.9.12.4"
 end

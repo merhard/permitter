@@ -1,3 +1,5 @@
+require 'active_support/concern'
+
 module Permitter
   module ControllerAdditions
     extend ActiveSupport::Concern

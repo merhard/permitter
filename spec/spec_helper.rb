@@ -1,8 +1,10 @@
 # require "sqlite3"
 # require "active_record"
 # require 'active_support/all'
+# require 'matchers'
 require 'permitter'
 require 'permitter/matchers'
+require 'pry'
 
 RSpec.configure do |config|
   config.treat_symbols_as_metadata_keys_with_true_values = true

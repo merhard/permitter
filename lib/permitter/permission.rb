@@ -2,8 +2,12 @@ module Permitter
   module Permission
 
     def allowed_action?(controller, action, resource = nil)
-      allowed = @allow_all || @allowed_actions[[controller.to_s, action.to_s]]
-      allowed && (allowed == true || resource && allowed.call(resource))
+      if @allow_all
+        true
+      elsif @allowed_actions
+        allowed = @allowed_actions[[controller.to_s, action.to_s]]
+        allowed && (allowed == true || resource && allowed.call(resource))
+      end
     end
 
     def allowed_param?(resource, attribute)
