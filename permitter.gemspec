@@ -14,9 +14,10 @@ Gem::Specification.new do |s|
   s.description = "TODO: Description of Permitter."
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
-  s.test_files = Dir["test/**/*"]
+  s.test_files = Dir["spec/**/*"]
 
   s.add_dependency "rails", "~> 4.0.0"
 
-  s.add_development_dependency "sqlite3"
+  s.add_development_dependency "sqlite3", "~> 1.3.8"
+  s.add_development_dependency "rspec", "~> 2.14.1"
 end
