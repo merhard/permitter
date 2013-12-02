@@ -7,11 +7,11 @@ require "permitter/version"
 Gem::Specification.new do |s|
   s.name        = "permitter"
   s.version     = Permitter::VERSION
-  s.authors     = ["TODO: Your name"]
-  s.email       = ["TODO: Your email"]
-  s.homepage    = "TODO"
-  s.summary     = "TODO: Summary of Permitter."
-  s.description = "TODO: Description of Permitter."
+  s.author      = "Matthew Erhard"
+  s.email       = "merhard@gmail.com"
+  s.homepage    = "http://github.com/merhard/permitter"
+  s.summary     = "Simple Rails 4 authorization solution."
+  s.description = "Simple Rails 4 authorization solution for developer to permit user allowances. Developer whitelists controller actions and resources per user type."
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
   s.test_files = Dir["spec/**/*"]
