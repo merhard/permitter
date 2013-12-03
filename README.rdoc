@@ -15,10 +15,10 @@ Next generate a Permission class, this is where your permissions will be defined
 
   rails g permitter:permission
 
-Add authorization by calling enable_authorization in your ApplicationController.
+Add authorization by calling authorize_user! in a before_filter in your ApplicationController.
 
   class ApplicationController < ActionController::Base
-    enable_authorization
+    before_filter authorize_user!
   end
 
 This will add an authorization check locking down every controller action. If you try visiting a page, a <tt>Permitter::Unauthorized</tt> exception will be raised since you have not granted the user permission to access it.
