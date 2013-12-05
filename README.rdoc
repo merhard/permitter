@@ -7,7 +7,7 @@ Here are some instructions for setting up Permitter. Try this out and provide fe
 
 Permitter expects your controllers to have a +current_user+ method. Add some authentication for this (such as Devise[https://github.com/plataformatec/devise]).
 
-To install Permitter, add it to your Gemfile and run the `bundle` command.
+To install Permitter, add it to your +Gemfile+ and run the +bundle+ command.
 
   gem "permitter", git: "git://github.com/merhard/permitter.git"
 
@@ -15,54 +15,93 @@ Next generate a Permission class, this is where your permissions will be defined
 
   rails g permitter:permission
 
-Add authorization by calling authorize_user! in a before_filter in your ApplicationController.
+Add authorization by calling +authorize_user!+ in a +before_action+ in your +ApplicationController+.
 
   class ApplicationController < ActionController::Base
-    before_filter authorize_user!
+    before_action authorize_user!
   end
 
-This will add an authorization check locking down every controller action. If you try visiting a page, a <tt>Permitter::Unauthorized</tt> exception will be raised since you have not granted the user permission to access it.
+This will add an authorization check locking down every controller action. If you try visiting a page, a +Permitter::Unauthorized+ exception will be raised since you have not granted the user permission to access it. You can catch this and modify its behavior in the +ApplicationController+.
+
+  class ApplicationController < ActionController::Base
+    before_action authorize_user!
+
+    rescue_from Permitter::Unauthorized do |exception|
+      redirect_to root_url, alert: exception.message
+    end
+  end
 
 
 == Defining Abilities
 
 You grant access to controller actions through the +Permission+ class which was generated above. The +current_user+ is passed in allowing you to define permissions based on user attributes. For example:
 
-  if user
-    allow_all
-  else
-    allow_action [:sessions, :registrations], [:new, :create]
-    allow_action :sessions, :destroy
+  class Permission
+    include Permitter::Permission
+
+    def initialize(user)
+      if user
+        allow_all
+      else
+        allow_action [:sessions, :registrations], [:new, :create]
+        allow_action :projects, :index
+      end
+    end
   end
 
-Here if there is a user he will be able to perform any action on any controller. If someone is not logged in he can only access the new and create actions of the sessions and registrations controllers as well as the destroy action of the sessions controller.
+Here if there is a user he will be able to perform any action on any controller. If someone is not logged in he can only access the new and create actions of the sessions and registrations controllers as well as the index action of the projects controller.
 
 The first argument to +allow_action+ is the controller name being permitted. The second argument is the action they can perform in that controller.
 
 As shown above, pass an array to either of these will grant permission on each item in the array. Controller names and actions can be represented as symbols or strings.
 
-You can check permissions in any controller or view using the <tt>allow_action?</tt> method.
+You can check permissions in any controller or view using the +allowed_action?+ method.
 
-  <% if allow_action? :comments, :create %>
-    <%= link_to "New Comment", new_comment_path %>
+  <% if allowed_action? :projects, :create %>
+    <%= link_to "New Project", new_project_path %>
   <% end %>
 
-Here the link will only show up if the user can create comments.
+Here the link will only show up if the user can create projects.
 
 
 == Resource Conditions
 
-What if you need to change authorization based on a model's attributes? You can do so by passing a block as the last argument to +allow_action+. For example, if you want to only allow one to edit projects which he owns:
+If you need to change authorization based on a model's attributes, you can do so by passing a block as the last argument to +allow_action+. For example, if you want to only allow a user to edit projects which he/she owns:
 
-  allow_action :projects, [:edit, :update] do |project|
-    project.user == user
+  class Permission
+    include Permitter::Permission
+
+    def initialize(user)
+      if user
+        
+        allow_action :projects, [:edit, :update] do |project|
+          project.user_id == user.id
+        end
+
+      end
+    end
   end
 
-You can check permissions on instances using the <tt>allow_action?</tt> method.
 
-  <%= link_to "Edit Project", edit_project_path if allow_action?(:projects, :update, @project) %>
+Then create a +current_resource+ method in that controller:
 
-Here it will only show the edit link if the +user_id+ matches.
+  class ProjectsController < ApplicationController
+
+    private
+    
+    def current_resource
+      @project ||= Project.find(params[:id]) if params[:id]
+    end
+  end
+
+
+You can check permissions on instances using the +allowed_action?+ method.
+
+  <% if allowed_action? :projects, :update, current_resource %>
+    <%= link_to "Edit Project", edit_project_path %>
+  <% end %>
+
+Here it will only show the edit link if the +user_id+ of the project matches the +current_user.id+.
 
 
 == Resource Attributes
