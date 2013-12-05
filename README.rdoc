@@ -18,13 +18,13 @@ Next generate a Permission class, this is where your permissions will be defined
 Add authorization by calling +authorize_user!+ in a +before_action+ in your +ApplicationController+.
 
   class ApplicationController < ActionController::Base
-    before_action authorize_user!
+    before_action :authorize_user!
   end
 
 This will add an authorization check locking down every controller action. If you try visiting a page, a +Permitter::Unauthorized+ exception will be raised since you have not granted the user permission to access it. You can catch this and modify its behavior in the +ApplicationController+.
 
   class ApplicationController < ActionController::Base
-    before_action authorize_user!
+    before_action :authorize_user!
 
     rescue_from Permitter::Unauthorized do |exception|
       redirect_to root_url, alert: exception.message
