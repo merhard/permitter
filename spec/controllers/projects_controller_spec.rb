@@ -56,4 +56,29 @@ describe ProjectsController do
   end
 
 
+  describe "GET #new" do
+    before do
+      unless example.metadata[:skip_before]
+        controller.current_user = user
+        get :new
+      end
+    end
+
+    it "responds unsuccessfully with an HTTP 302 status code if user not signed in", skip_before: true do
+      get :new
+      expect(response).to_not be_success
+      expect(response.status).to eq(302)
+    end
+
+    it "responds successfully with an HTTP 200 status code if user signed in" do
+      expect(response).to be_success
+      expect(response.status).to eq(200)
+    end
+
+    it "renders the new template" do
+      expect(response).to render_template("new")
+    end
+  end
+
+
 end
