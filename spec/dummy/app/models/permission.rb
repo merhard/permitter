@@ -10,6 +10,8 @@ class Permission
       allow_action :projects, [:edit, :update] do |project|
         project.user_id == user.id
       end
+
+      allow_all if user.admin?
     end
 
   end

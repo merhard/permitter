@@ -22,7 +22,7 @@ describe ProjectsController do
     end
 
     it "loads all of the projects into @projects" do
-      expect(assigns(:projects)).to match_array([project, project1, project2])
+      expect(assigns(:projects)).to eq(Project.all)
     end
   end
 
@@ -175,7 +175,7 @@ describe ProjectsController do
       expect(flash.alert).to eq("You are not authorized to access this page.")
     end
 
-    it "responds unsuccessfullyif user not associated with project", skip_before: true do
+    it "responds unsuccessfully if user not associated with project", skip_before: true do
       controller.current_user = user1
       patch :update, id: project2.id
       expect(response).to_not be_success
@@ -193,6 +193,35 @@ describe ProjectsController do
     it "updates a project" do
       expect(project1.title).to eq(title)
       expect(project1.title).to_not eq(@original_title)
+    end
+  end
+
+
+  describe "DELETE #destroy" do
+
+    it "responds unsuccessfully if user not signed in" do
+      delete :destroy, id: project.id
+      expect(flash.alert).to eq("You are not authorized to access this page.")
+    end
+
+    it "responds unsuccessfully if user not an admin" do
+      controller.current_user = user1
+      delete :destroy, id: project1.id
+      expect(flash.alert).to eq("You are not authorized to access this page.")
+    end
+
+    it "responds successfully if user an admin" do
+      controller.current_user = admin
+      delete :destroy, id: project.id
+      expect(flash.alert).to be nil
+    end
+
+    it "destroys a project" do
+      expect(Project.all).to include(project)
+
+      controller.current_user = admin
+      delete :destroy, id: project.id
+      expect(Project.all).to_not include(project)
     end
   end
 
