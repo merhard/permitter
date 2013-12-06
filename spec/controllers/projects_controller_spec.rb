@@ -1,10 +1,10 @@
 require "spec_helper"
 
 describe ProjectsController do
-  let(:user)  { create(:user) }
+  let(:user)  { build(:user) }
   let(:user1) { create(:user) }
   let(:user2) { create(:user) }
-  let(:admin) { create(:admin) }
+  let(:admin) { build(:admin) }
   let(:project)  { create(:project) }
   let(:project1) { create(:project, user: user1) }
   let(:project2) { create(:project, user: user2) }
