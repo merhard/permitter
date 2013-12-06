@@ -39,6 +39,8 @@ describe ProjectsController do
       get :show, id: project.id
       expect(response).to_not be_success
       expect(response.status).to eq(302)
+      expect(response).to redirect_to(projects_url)
+      expect(flash.alert).to eq("You are not authorized to access this page.")
     end
 
     it "responds successfully with an HTTP 200 status code if user signed in" do
@@ -68,6 +70,7 @@ describe ProjectsController do
       get :new
       expect(response).to_not be_success
       expect(response.status).to eq(302)
+      expect(response).to redirect_to(projects_url)
     end
 
     it "responds successfully with an HTTP 200 status code if user signed in" do
@@ -77,6 +80,37 @@ describe ProjectsController do
 
     it "renders the new template" do
       expect(response).to render_template("new")
+    end
+
+    it "builds a new project into @project" do
+      expect(assigns(:project)).to be_a_new(Project)
+    end
+  end
+
+
+  describe "POST #create" do
+    before do
+      unless example.metadata[:skip_before]
+        controller.current_user = user
+        post :create
+      end
+    end
+
+    it "responds unsuccessfully if user not signed in", skip_before: true do
+      post :create
+      expect(response.status).to eq(302)
+      expect(response).to redirect_to(projects_url)
+      expect(flash.alert).to eq("You are not authorized to access this page.")
+    end
+
+    it "responds successfully if user signed in" do
+      expect(response.status).to eq(302)
+      expect(response).to redirect_to(project_url(assigns(:project)))
+      expect(flash.notice).to eq("Project was successfully created.")
+    end
+
+    it "creates a new project" do
+      expect(assigns(:project)).to eq(Project.last)
     end
   end
 

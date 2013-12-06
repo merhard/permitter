@@ -4,7 +4,7 @@ class Permission
   def initialize(user)
     allow_action :projects, :index
     if user
-      allow_action :projects, [:show, :new]
+      allow_action :projects, [:show, :new, :create]
     end
   end
 end
