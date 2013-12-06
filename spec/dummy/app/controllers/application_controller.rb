@@ -4,15 +4,6 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
 
-  attr_accessor :current_user
-
-  def initialize
-    @current_user = nil
-    super
-  end
-
-
-
   before_action :authorize_user!
 
   rescue_from Permitter::Unauthorized do |exception|

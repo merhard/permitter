@@ -1,6 +1,7 @@
 require "spec_helper"
 
 describe ProjectsController do
+  before { @controller.stub(:current_user) { nil } }
   let(:user)  { build(:user) }
   let(:user1) { create(:user) }
   let(:user2) { create(:user) }
@@ -30,7 +31,7 @@ describe ProjectsController do
   describe "GET #show" do
     before do
       unless example.metadata[:skip_before]
-        controller.current_user = user
+        @controller.stub(:current_user) { user }
         get :show, id: project.id
       end
     end
@@ -61,7 +62,7 @@ describe ProjectsController do
   describe "GET #new" do
     before do
       unless example.metadata[:skip_before]
-        controller.current_user = user
+        @controller.stub(:current_user) { user }
         get :new
       end
     end
@@ -92,7 +93,7 @@ describe ProjectsController do
   describe "POST #create" do
     before do
       unless example.metadata[:skip_before]
-        controller.current_user = user
+        @controller.stub(:current_user) { user }
         post :create
       end
     end
@@ -119,7 +120,7 @@ describe ProjectsController do
   describe "GET #edit" do
     before do
       unless example.metadata[:skip_before]
-        controller.current_user = user1
+        @controller.stub(:current_user) { user1 }
         get :edit, id: project1.id
       end
     end
@@ -133,7 +134,7 @@ describe ProjectsController do
     end
 
     it "responds unsuccessfully if user not associated with project", skip_before: true do
-      controller.current_user = user1
+      @controller.stub(:current_user) { user1 }
       get :edit, id: project2.id
       expect(response).to_not be_success
       expect(response.status).to eq(302)
@@ -160,7 +161,7 @@ describe ProjectsController do
 
     before do
       unless example.metadata[:skip_before]
-        controller.current_user = user1
+        @controller.stub(:current_user) { user1 }
         @original_title = project1.title
         project1.title = title
         patch :update, id: project1.id
@@ -176,7 +177,7 @@ describe ProjectsController do
     end
 
     it "responds unsuccessfully if user not associated with project", skip_before: true do
-      controller.current_user = user1
+      @controller.stub(:current_user) { user1 }
       patch :update, id: project2.id
       expect(response).to_not be_success
       expect(response.status).to eq(302)
@@ -205,13 +206,13 @@ describe ProjectsController do
     end
 
     it "responds unsuccessfully if user not an admin" do
-      controller.current_user = user1
+      @controller.stub(:current_user) { user1 }
       delete :destroy, id: project1.id
       expect(flash.alert).to eq("You are not authorized to access this page.")
     end
 
     it "responds successfully if user an admin" do
-      controller.current_user = admin
+      @controller.stub(:current_user) { admin }
       delete :destroy, id: project.id
       expect(flash.alert).to be nil
     end
@@ -219,7 +220,7 @@ describe ProjectsController do
     it "destroys a project" do
       expect(Project.all).to include(project)
 
-      controller.current_user = admin
+      @controller.stub(:current_user) { admin }
       delete :destroy, id: project.id
       expect(Project.all).to_not include(project)
     end
