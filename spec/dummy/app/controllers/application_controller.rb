@@ -22,7 +22,6 @@ class ApplicationController < ActionController::Base
   private
 
   def current_permissions
-    # binding.pry
     @current_permissions ||= Permission.new(current_user)
   end
 
