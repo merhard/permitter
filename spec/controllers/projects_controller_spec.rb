@@ -12,7 +12,7 @@ describe ProjectsController do
   describe "GET #index" do
     before { get :index }
 
-    it "responds successfully with an HTTP 200 status code" do
+    it "responds successfully" do
       expect(response).to be_success
       expect(response.status).to eq(200)
     end
@@ -22,7 +22,7 @@ describe ProjectsController do
     end
 
     it "loads all of the projects into @projects" do
-      expect(assigns(:projects)).to match_array([project1, project2])
+      expect(assigns(:projects)).to match_array([project, project1, project2])
     end
   end
 
@@ -35,7 +35,7 @@ describe ProjectsController do
       end
     end
 
-    it "responds unsuccessfully with an HTTP 302 status code if user not signed in", skip_before: true do
+    it "responds unsuccessfully if user not signed in", skip_before: true do
       get :show, id: project.id
       expect(response).to_not be_success
       expect(response.status).to eq(302)
@@ -43,7 +43,7 @@ describe ProjectsController do
       expect(flash.alert).to eq("You are not authorized to access this page.")
     end
 
-    it "responds successfully with an HTTP 200 status code if user signed in" do
+    it "responds successfully if user signed in" do
       expect(response).to be_success
       expect(response.status).to eq(200)
     end
@@ -66,7 +66,7 @@ describe ProjectsController do
       end
     end
 
-    it "responds unsuccessfully with an HTTP 302 status code if user not signed in", skip_before: true do
+    it "responds unsuccessfully if user not signed in", skip_before: true do
       get :new
       expect(response).to_not be_success
       expect(response.status).to eq(302)
@@ -74,7 +74,7 @@ describe ProjectsController do
       expect(flash.alert).to eq("You are not authorized to access this page.")
     end
 
-    it "responds successfully with an HTTP 200 status code if user signed in" do
+    it "responds successfully if user signed in" do
       expect(response).to be_success
       expect(response.status).to eq(200)
     end
@@ -124,7 +124,7 @@ describe ProjectsController do
       end
     end
 
-    it "responds unsuccessfully with an HTTP 302 status code if user not signed in", skip_before: true do
+    it "responds unsuccessfully if user not signed in", skip_before: true do
       get :edit, id: project.id
       expect(response).to_not be_success
       expect(response.status).to eq(302)
@@ -132,7 +132,7 @@ describe ProjectsController do
       expect(flash.alert).to eq("You are not authorized to access this page.")
     end
 
-    it "responds unsuccessfully with an HTTP 302 status code if user not associated with project", skip_before: true do
+    it "responds unsuccessfully if user not associated with project", skip_before: true do
       controller.current_user = user1
       get :edit, id: project2.id
       expect(response).to_not be_success
@@ -141,7 +141,7 @@ describe ProjectsController do
       expect(flash.alert).to eq("You are not authorized to access this page.")
     end
 
-    it "responds successfully with an HTTP 200 status code if user associated with project" do
+    it "responds successfully if user associated with project" do
       expect(response.status).to eq(200)
     end
 
@@ -151,6 +151,48 @@ describe ProjectsController do
 
     it "loads the project into @project" do
       expect(assigns(:project)).to eq(project1)
+    end
+  end
+
+
+  describe "PATCH #update" do
+    let(:title) { 'Updated Title' }
+
+    before do
+      unless example.metadata[:skip_before]
+        controller.current_user = user1
+        @original_title = project1.title
+        project1.title = title
+        patch :update, id: project1.id
+      end
+    end
+
+    it "responds unsuccessfully if user not signed in", skip_before: true do
+      patch :update, id: project.id
+      expect(response).to_not be_success
+      expect(response.status).to eq(302)
+      expect(response).to redirect_to(projects_url)
+      expect(flash.alert).to eq("You are not authorized to access this page.")
+    end
+
+    it "responds unsuccessfullyif user not associated with project", skip_before: true do
+      controller.current_user = user1
+      patch :update, id: project2.id
+      expect(response).to_not be_success
+      expect(response.status).to eq(302)
+      expect(response).to redirect_to(projects_url)
+      expect(flash.alert).to eq("You are not authorized to access this page.")
+    end
+
+    it "responds successfully if user associated with project" do
+      expect(response.status).to eq(302)
+      expect(response).to redirect_to(project_url(assigns(:project)))
+      expect(flash.notice).to eq("Project was successfully updated.")
+    end
+
+    it "updates a project" do
+      expect(project1.title).to eq(title)
+      expect(project1.title).to_not eq(@original_title)
     end
   end
 
