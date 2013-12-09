@@ -22,6 +22,12 @@ module Permitter
       end
     end
 
+    def allowed_action(controller, action)
+      if @allowed_actions
+        @allowed_actions[[controller.to_s, action.to_s]]
+      end
+    end
+
     def allow_action(controllers, actions, &block)
       @allowed_actions ||= {}
       Array(controllers).each do |controller|
