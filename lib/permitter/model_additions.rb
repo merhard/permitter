@@ -8,7 +8,7 @@ module Permitter
 
     module ClassMethods
 
-      def permitted_by(permissions, action = :permitted_by)
+      def permitted_by(permissions, action = :show)
         status = permissions.allowed_action(self.table_name, action)
 
         if status.class == Proc

@@ -52,20 +52,19 @@ describe Permitter::ModelAdditions do
   end
 
   it "fetches all articles when one can read all" do
-    @permissions.allow_action(:articles, [:permitted_by, :show])
+    @permissions.allow_action(:articles, :show)
 
     article1 = Article.create!
     article2 = Article.create!
 
     expect(@permissions).to allow_action(:articles, :show)
     expect(Article.permitted_by(@permissions)).to eq([article1, article2])
-    expect(Article.permitted_by(@permissions, :show)).to eq([article1, article2])
   end
 
   it "fetches only the articles that are published" do
     block = Proc.new { |article| article.published == true }
 
-    @permissions.allow_action(:articles, [:permitted_by, :show], &block)
+    @permissions.allow_action(:articles, :show, &block)
 
     article1 = Article.create!(published: true)
     article2 = Article.create!(published: false)
@@ -73,13 +72,12 @@ describe Permitter::ModelAdditions do
     expect(@permissions).to allow_action(:articles, :show, article1)
     expect(@permissions).to_not allow_action(:articles, :show, article2)
     expect(Article.permitted_by(@permissions)).to eq([article1])
-    expect(Article.permitted_by(@permissions, :show)).to eq([article1])
   end
 
   it "fetches any articles which are published or secret" do
     block = Proc.new { |article| (article.published == true) | (article.secret == true) }
 
-    @permissions.allow_action(:articles, [:permitted_by, :show], &block)
+    @permissions.allow_action(:articles, :show, &block)
 
     article1 = Article.create!(published: true,  secret: false)
     article2 = Article.create!(published: true,  secret: true)
@@ -91,13 +89,12 @@ describe Permitter::ModelAdditions do
     expect(@permissions).to allow_action(:articles, :show, article3)
     expect(@permissions).to_not allow_action(:articles, :show, article4)
     expect(Article.permitted_by(@permissions)).to eq([article1, article2, article3])
-    expect(Article.permitted_by(@permissions, :show)).to eq([article1, article2, article3])
   end
 
   it "fetches only the articles that are published and not secret" do
     block = Proc.new { |article| (article.published == true) & (article.secret == false) }
 
-    @permissions.allow_action(:articles, [:permitted_by, :show], &block)
+    @permissions.allow_action(:articles, :show, &block)
 
     article1 = Article.create!(published: true,  secret: false)
     article2 = Article.create!(published: true,  secret: true)
@@ -109,33 +106,32 @@ describe Permitter::ModelAdditions do
     expect(@permissions).to_not allow_action(:articles, :show, article3)
     expect(@permissions).to_not allow_action(:articles, :show, article4)
     expect(Article.permitted_by(@permissions)).to eq([article1])
-    expect(Article.permitted_by(@permissions, :show)).to eq([article1])
   end
 
   it "only reads comments for articles which are published" do
     block = Proc.new { article.published == true }
 
-    @permissions.allow_action(:comments, :permitted_by, &block)
+    @permissions.allow_action(:comments, :permitted, &block)
 
     comment1 = Comment.create!(article: Article.create!(published: true))
     comment2 = Comment.create!(article: Article.create!(published: false))
 
-    @comments = Comment.joins(:article).permitted_by(@permissions)
+    @comments = Comment.joins(:article).permitted_by(@permissions, :permitted)
     expect(@comments).to eq([comment1])
 
-    @comments = Comment.joins{article}.permitted_by(@permissions)
+    @comments = Comment.joins{article}.permitted_by(@permissions, :permitted)
     expect(@comments).to eq([comment1])
   end
 
   it "only reads comments for visible categories through articles" do
     block = Proc.new { article.category.visible == true }
 
-    @permissions.allow_action(:comments, :permitted_by, &block)
+    @permissions.allow_action(:comments, :permitted, &block)
 
     comment1 = Comment.create!(article: Article.create!(category: Category.create!(visible: true)))
     comment2 = Comment.create!(article: Article.create!(category: Category.create!(visible: false)))
 
-    @comments = Comment.joins{article.category}.permitted_by(@permissions)
+    @comments = Comment.joins{article.category}.permitted_by(@permissions, :permitted)
     expect(@comments).to eq([comment1])
   end
 

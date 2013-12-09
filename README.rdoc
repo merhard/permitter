@@ -73,7 +73,7 @@ If you need to change authorization based on a model's attributes, you can do so
 
     def initialize(user)
       if user
-        
+
         allow_action :projects, [:edit, :update] do |project|
           project.user_id == user.id
         end
@@ -88,7 +88,7 @@ Then create a +current_resource+ method in that controller:
   class ProjectsController < ApplicationController
 
     private
-    
+
     def current_resource
       @project ||= Project.find(params[:id]) if params[:id]
     end
@@ -122,7 +122,7 @@ For example:
       allow_action :projects, :index
 
       if user
-        allow_action :projects, [:edit, :update] do |project|
+        allow_action :projects, :show do |project|
           project.user_id == user.id
         end
       end
@@ -132,15 +132,15 @@ For example:
   class ProjectController < ApplicationController
 
     def index
-      @projects = Project.permitted_by(current_permissions, :edit)
+      @projects = Project.permitted_by(current_permissions)
     end
 
   end
 
-The +@projects+ variable will now be scoped similar to +Project.where(user_id: current_user.id)+.
+The +@projects+ variable will now be scoped to projects available to the show action.
 
 
-If no currently used permissions match the scoping required, use +:permitted_by+ as the action in +Permission+.
+If the #show action doesn not match the scoping required, any action can be used (even a custom one if none match).
 
   class Permission
     include Permitter::Permission
@@ -149,11 +149,11 @@ If no currently used permissions match the scoping required, use +:permitted_by+
       allow_action :projects, :index
 
       if user
-        allow_action :projects, [:edit, :update] do |project|
+        allow_action :projects, :show do |project|
           project.user_id == user.id
         end
 
-        allow_action :projects, :permitted_by do |project|
+        allow_action :projects, :custom_action do |project|
           # your scope here
         end
       end
@@ -165,14 +165,12 @@ Then:
   class ProjectController < ApplicationController
 
     def index
-      @projects = Project.permitted_by(current_permissions)
+      @projects = Project.permitted_by(current_permissions, :custom_action)
     end
 
   end
 
-Note that when :permitted_by is used, action is now optional.
 
-
-When writing scopes via an association, :permitted_by must be used.
+When writing scopes via an association, a custom action must be used.
 
 # TODO: example usage
