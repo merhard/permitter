@@ -107,3 +107,72 @@ Here it will only show the edit link if the +user_id+ of the project matches the
 == Resource Attributes
 
 TODO
+
+
+== :permitted_by(current_permissions, :action)
+
+Sometimes you may want to scope the relation used in the #index controller. Permitter allows you to do this in your +Permission+ class without the need to repeat yourself.
+
+For example:
+
+  class Permission
+    include Permitter::Permission
+
+    def initialize(user)
+      allow_action :projects, :index
+
+      if user
+        allow_action :projects, [:edit, :update] do |project|
+          project.user_id == user.id
+        end
+      end
+    end
+  end
+
+  class ProjectController < ApplicationController
+
+    def index
+      @projects = Project.permitted_by(current_permissions, :edit)
+    end
+
+  end
+
+The +@projects+ variable will now be scoped similar to +Project.where(user_id: current_user.id)+.
+
+
+If no currently used permissions match the scoping required, use +:permitted_by+ as the action in +Permission+.
+
+  class Permission
+    include Permitter::Permission
+
+    def initialize(user)
+      allow_action :projects, :index
+
+      if user
+        allow_action :projects, [:edit, :update] do |project|
+          project.user_id == user.id
+        end
+
+        allow_action :projects, :permitted_by do |project|
+          # your scope here
+        end
+      end
+    end
+  end
+
+Then:
+
+  class ProjectController < ApplicationController
+
+    def index
+      @projects = Project.permitted_by(current_permissions)
+    end
+
+  end
+
+Note that when :permitted_by is used, action is now optional.
+
+
+When writing scopes via an association, :permitted_by must be used.
+
+# TODO: example usage
