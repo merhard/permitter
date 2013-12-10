@@ -15,19 +15,19 @@ Next generate a Permission class, this is where your permissions will be defined
 
   rails g permitter:permission
 
-Add authorization by calling +authorize_user!+ in a +before_action+ in your +ApplicationController+.
+Add authorization by calling +authorize_user!+ in a +before_action+ in any controller (or the +ApplicationController+ to authorize the whole app).
 
   class ApplicationController < ActionController::Base
     before_action :authorize_user!
   end
 
-This will add an authorization check locking down every controller action. If you try visiting a page, a +Permitter::Unauthorized+ exception will be raised since you have not granted the user permission to access it. You can catch this and modify its behavior in the +ApplicationController+.
+This will add an authorization check locking down every action in the controller. If you try visiting a page without granting the user access, a <tt>Permitter::Unauthorized</tt> exception will be raised. You can catch this exception and modify its behavior.
 
   class ApplicationController < ActionController::Base
     before_action :authorize_user!
 
     rescue_from Permitter::Unauthorized do |exception|
-      redirect_to root_url, alert: exception.message
+      # your code here
     end
   end
 
@@ -49,7 +49,7 @@ You grant access to controller actions through the +Permission+ class which was 
     end
   end
 
-Here if there is a user he will be able to perform any action on any controller. If someone is not logged in he can only access the new and create actions of the sessions and registrations controllers as well as the index action of the projects controller.
+Here, if there is a +current_user+ (user signed in), he will be able to perform any action on any controller. If +current_user+ is +nil+ (user not signed in), the visitor can only access the new and create actions of the +SessionsController+ and the +RegistrationsController+ as well as the +#index+ action of the +ProjectsController+.
 
 The first argument to +allow_action+ is the controller name being permitted. The second argument is the action they can perform in that controller.
 
@@ -66,7 +66,7 @@ Here the link will only show up if the user can create projects.
 
 == Resource Conditions
 
-If you need to change authorization based on a model's attributes, you can do so by passing a block as the last argument to +allow_action+. For example, if you want to only allow a user to edit projects which he/she owns:
+If you need to change authorization based on a model's attributes, you can do so by passing a block as the last argument to +allow_action+. For example, if you want to only allow a user to edit projects which he/she owns, first:
 
   class Permission
     include Permitter::Permission
@@ -83,7 +83,7 @@ If you need to change authorization based on a model's attributes, you can do so
   end
 
 
-Then create a +current_resource+ method in that controller:
+Then, create a +current_resource+ method in that controller:
 
   class ProjectsController < ApplicationController
 
@@ -95,23 +95,80 @@ Then create a +current_resource+ method in that controller:
   end
 
 
-You can check permissions on instances using the +allowed_action?+ method.
+You can still check permissions using the +allowed_action?+ method. Just pass in the resource.
 
-  <% if allowed_action? :projects, :update, current_resource %>
+  <% if allowed_action? :projects, :update, @project %>
     <%= link_to "Edit Project", edit_project_path %>
   <% end %>
 
-Here it will only show the edit link if the +user_id+ of the project matches the +current_user.id+.
+Here, it will only show the edit link if the +user_id+ of the project matches the +current_user.id+.
 
 
 == Resource Attributes
 
-TODO
+Rails 4 moved mass assignment to the controller level with +strong_parameters+. +Permitter+ fully supports Rails 4 mass assignment. If mass assignment in your app requires no user specific logic, do NOT use +allow_param+ in your +Permission+ class. Follow normal Rails 4 methods for strong paramter mass assignment.
+
+If your app does require user specific mass assignment logic, +Permitter+ supplies an +allow_param+ method to be used along-side +allow_action+ in your +Permission+ class.
+
+For example, suppose a user should only be able to set the title (and no other attributes) of projects they own. Just:
+
+  class Permission
+    include Permitter::Permission
+
+    def initialize(user)
+      allow_action :project, [:index, :show]
+
+      if user
+        allow_action :projects, [:new, :create]
+
+        allow_action :projects, [:edit, :update] do |project|
+          project.user_id == user.id
+        end
+
+        allow_param :project, :title
+
+        allow_all if user.admin?
+
+      end
+    end
+  end
 
 
-== :permitted_by(current_permissions, :action)
+The +allow_param+ method takes a resource title (or array of resources) and an attribute (or array of attributes) for that resource to be permitted via strong parameters. +Permitter+ will modify +params+ for that resource (here, +params[:project]+ to only include the whitelisted attributes, removing all others. +Permitter+ flags the remaining +params+ of that resource permitted per strong parameters. This allows mass assignment in the controller to follow the old Rails 3.2 syntax while using the more secure methodology of strong paramters.
 
-Sometimes you may want to scope the relation used in the #index controller. Permitter allows you to do this in your +Permission+ class without the need to repeat yourself.
+  class ProjectsController < ApplicationController
+    
+    ...
+
+    def create
+      @project = Project.create(params[:project])
+    end
+
+    def update
+      @project = Project.find(params[:id])
+      @project.update(params[:project])
+    end
+
+    ...
+
+  end
+
+
+You can check permissions using the +allowed_param?+ method.
+
+  <% if allowed_param? :project, :title %>
+    <div class="field">
+      <%= f.label :title %><br />
+      <%= f.text_field :title %>
+    </div>
+  <% end %>
+
+Here, it will only show the title label and text field if the user is allowed to modify the title attribute of +Project+.
+
+
+== Permission Scoping
+
+Sometimes you may want to scope the relation used in the +#index+ action of the controller. +Permitter+ allows you to do this in your +Permission+ class without the need to repeat yourself.
 
 For example:
 
@@ -137,10 +194,10 @@ For example:
 
   end
 
-The +@projects+ variable will now be scoped to projects available to the show action.
+The <tt>@projects</tt> variable will now be scoped to projects available to the +#show+ action.
 
 
-If the #show action doesn not match the scoping required, any action can be used (even a custom one if none match).
+If the +#show+ action does not match the scoping needed, any action can be used (even a custom one if none match).
 
   class Permission
     include Permitter::Permission
@@ -171,6 +228,74 @@ Then:
   end
 
 
-When writing scopes via an association, a custom action must be used.
 
-# TODO: example usage
+When writing scopes via an association, a custom action must be used with a block requiring no arguments.
+
+  class Permission
+    include Permitter::Permission
+
+    def initialize(user)
+      allow_action :comments, :index
+
+      allow_action :comments, :permitted do
+        article.published == true
+      end
+    end
+  end
+
+  class CommentsController < ApplicationController
+    def index
+      @comments = Comment.joins(:article).permitted_by(@permissions, :permitted)
+      #alternatively: Comment.joins{article}.permitted_by(@permissions, :permitted)
+    end
+  end
+
+
+  class Comment < ActiveRecord::Base
+    # t.integer :article_id
+    
+    belongs_to :article
+  end
+
+  class Article < ActiveRecord::Base
+    # integer :category_id
+    # boolean :published
+    
+    belongs_to :category
+    has_many :comments
+  end
+  
+  class Category < ActiveRecord::Base
+    # boolean :visible
+
+    has_many :articles
+  end
+
+Nested joins are also supported:
+
+  class Permission
+    include Permitter::Permission
+
+    def initialize(user)
+      allow_action :comments, :index
+
+      allow_action :comments, :permitted do
+        article.category.visible == true
+      end
+    end
+  end
+
+  class CommentsController < ApplicationController
+    def index
+      @comments = Comment.joins{article.category}.permitted_by(@permissions, :permitted)
+    end
+  end
+
+
+Permitter accomplishes this using the squeel[https://github.com/activerecord-hackery/squeel] gem. See the squeel docs for any query related questions.
+
+
+
+== Special Thanks
+
+Permitter was inspired by cancan[https://github.com/ryanb/cancan/] and Railscasts[http://railscasts.com/episodes/385-authorization-from-scratch-part-1/].

@@ -17,7 +17,7 @@ module Permitter
 
       def authorize_user!
         if current_permissions.allowed_action?(params[:controller], params[:action], current_resource)
-          current_permissions.permit_params!(params) #TODO: work?
+          current_permissions.permit_params!(params)
         else
           raise Permitter::Unauthorized
         end
