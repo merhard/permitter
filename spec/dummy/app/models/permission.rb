@@ -13,6 +13,11 @@ class Permission
 
       allow_param :project, :title
 
+      allow_action :users, :index
+      allow_action :users, :show do |resource|
+        resource.id == user.id
+      end
+
       allow_all if user.admin?
     end
 

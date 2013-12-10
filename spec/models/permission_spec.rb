@@ -38,6 +38,13 @@ describe Permission do
       should allow_param(:project, :title)
       should_not allow_param(:project, :sticky)
     end
+
+    it 'users' do
+      should allow_action(:users, :index)
+      should_not allow_action(:users, :show)
+      should_not allow_action(:users, :show, user2)
+      should allow_action(:users, :show, user1)
+    end
   end
 
 
