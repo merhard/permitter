@@ -23,4 +23,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec-rails", "~> 2.14.0"
   s.add_development_dependency "factory_girl_rails", "~> 4.3.0"
   s.add_development_dependency "pry", "~> 0.9.12.4"
+  s.add_development_dependency "simplecov", "~> 0.8.2"
 end

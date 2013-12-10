@@ -11,3 +11,4 @@ spec/dummy/.sass-cache
 *.gem
 Gemfile.lock
 tmp/
+coverage/
