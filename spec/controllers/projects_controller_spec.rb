@@ -91,10 +91,12 @@ describe ProjectsController do
 
 
   describe "POST #create" do
+    let(:title)  { 'Title' }
+    let(:sticky) { true }
     before do
       unless example.metadata[:skip_before]
         @controller.stub(:current_user) { user }
-        post :create
+        post :create, project: {title: title, sticky: sticky}
       end
     end
 
@@ -113,6 +115,11 @@ describe ProjectsController do
 
     it "creates a new project" do
       expect(assigns(:project)).to eq(Project.last)
+    end
+
+    it "does not assign sticky variable" do
+      expect(assigns(:project).title).to eq(title)
+      expect(assigns(:project).sticky).to be_nil
     end
   end
 
@@ -158,13 +165,14 @@ describe ProjectsController do
 
   describe "PATCH #update" do
     let(:title) { 'Updated Title' }
+    let(:sticky) { true }
 
     before do
       unless example.metadata[:skip_before]
         @controller.stub(:current_user) { user1 }
         @original_title = project1.title
-        project1.title = title
-        patch :update, id: project1.id
+        @original_sticky = project1.sticky
+        patch :update, id: project1.id, project: {title: title, sticky: sticky}
       end
     end
 
@@ -192,8 +200,13 @@ describe ProjectsController do
     end
 
     it "updates a project" do
-      expect(project1.title).to eq(title)
-      expect(project1.title).to_not eq(@original_title)
+      expect(assigns(:project).title).to eq(title)
+      expect(assigns(:project).title).to_not eq(@original_title)
+    end
+
+    it "does not update sticky" do
+      expect(assigns(:project).sticky).to eq(@original_sticky)
+      expect(assigns(:project).sticky).to_not eq(sticky)
     end
   end
 

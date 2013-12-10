@@ -13,6 +13,9 @@ module Permitter
     end
 
     def allowed_param?(resource, attribute)
+      resource = resource.to_sym
+      attribute = attribute.to_sym
+
       if allow_all?
         true
       elsif @allowed_params && @allowed_params[resource]
@@ -39,9 +42,12 @@ module Permitter
 
     def allow_param(resources, attributes)
       @allowed_params ||= {}
-      Array(resources).each do |resource|
+      resource_array = Array(resources).map{|x| x.to_sym}
+      attribute_array = Array(attributes).map{|x| x.to_sym}
+
+      resource_array.each do |resource|
         @allowed_params[resource] ||= []
-        @allowed_params[resource] += Array(attributes)
+        @allowed_params[resource] += attribute_array
       end
     end
 

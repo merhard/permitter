@@ -11,6 +11,8 @@ class Permission
         project.user_id == user.id
       end
 
+      allow_param :project, :title
+
       allow_all if user.admin?
     end
 

@@ -35,6 +35,8 @@ describe Permission do
       should_not allow_action(:projects, :destroy)
       should_not allow_action(:projects, :destroy, project1)
       should_not allow_action(:projects, :destroy, project2)
+      should allow_param(:project, :title)
+      should_not allow_param(:project, :sticky)
     end
   end
 
