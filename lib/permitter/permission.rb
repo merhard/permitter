@@ -33,8 +33,8 @@ module Permitter
 
     def allow_action(controllers, actions, &block)
       @allowed_actions ||= {}
-      Array(controllers).each do |controller|
-        Array(actions).each do |action|
+      Array(controllers).flatten.each do |controller|
+        Array(actions).flatten.each do |action|
           @allowed_actions[[controller.to_s, action.to_s]] = block || true
         end
       end
@@ -42,8 +42,8 @@ module Permitter
 
     def allow_param(resources, attributes)
       @allowed_params ||= {}
-      resource_array = Array(resources).map{|x| x.to_sym}
-      attribute_array = Array(attributes).map{|x| x.to_sym}
+      resource_array = Array(resources).flatten.map{|x| x.to_sym}
+      attribute_array = Array(attributes).flatten.map{|x| x.to_sym}
 
       resource_array.each do |resource|
         @allowed_params[resource] ||= []
