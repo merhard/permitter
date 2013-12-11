@@ -1,0 +1,21 @@
+= Permitter Specs
+
+== Running the specs
+
+To run the specs first run the +bundle+ command to install the necessary gems.
+
+  bundle
+
+Then the migrations for the dummy app must be run. Move to the dummy app root and run the migrations.
+
+  cd spec/dummy
+  rake db:migrate
+  rake test:prepare
+  cd ../..
+
+Finally, from the root of the gem, run the +rake+ command to run the specs.
+
+  rake
+
+The specs currently require Ruby >= 1.9.3
+They may or may not work with other Ruby versions.
