@@ -107,7 +107,7 @@ Here, it will only show the edit link if the +user_id+ of the project matches th
 
 == Resource Attributes
 
-Rails 4 moved mass assignment to the controller level with +strong_parameters+. +Permitter+ fully supports Rails 4 mass assignment. If mass assignment in your app requires no user specific logic, do NOT use +allow_param+ in your +Permission+ class. Follow normal Rails 4 methods for strong paramter mass assignment.
+Rails 4 moved mass assignment to the controller level with +strong_parameters+. +Permitter+ fully supports Rails 4 mass assignment. If mass assignment in your app requires no user specific logic, it may not be necessarry to use Permitter for mass assignment sanitation. In this case, just follow normal Rails 4 methods for strong parameter mass assignment.
 
 If your app does require user specific mass assignment logic, +Permitter+ supplies an +allow_param+ method to be used along-side +allow_action+ in your +Permission+ class.
 
@@ -135,7 +135,7 @@ For example, suppose a user should only be able to set the title (and no other a
   end
 
 
-The +allow_param+ method takes a resource title (or array of resources) and an attribute (or array of attributes) for that resource to be permitted via strong parameters. +Permitter+ will modify +params+ for that resource (here, +params[:project]+ to only include the whitelisted attributes, removing all others. +Permitter+ flags the remaining +params+ of that resource permitted per strong parameters. This allows mass assignment in the controller to follow the old Rails 3.2 syntax while using the more secure methodology of strong paramters.
+The +allow_param+ method takes a resource title (or array of resource titles) and an attribute (or array of attributes) for that resource to be permitted via strong parameters. +Permitter+ will modify +params+ for that resource (here, <tt>params[:project]</tt>) to only include the whitelisted attributes, removing all others. +Permitter+ flags the remaining +params+ of that resource permitted per strong parameters. This allows mass assignment in the controller to follow the old Rails 3.2 syntax while using the more secure methodology of strong paramters.
 
   class ProjectsController < ApplicationController
     
