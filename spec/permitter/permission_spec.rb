@@ -79,11 +79,6 @@ describe Permitter::Permission do
       expect(@permission.allowed_param?(:foo, :grunt)).to be false
     end
 
-    it "allows strings instead of symbols in permission check" do
-      @permission.allow_param(:controller, :action)
-      expect(@permission.allowed_param?('controller', 'action')).to be true
-    end
-
   end
 
 end
