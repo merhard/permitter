@@ -1,5 +1,5 @@
 = Permitter
-{<img src="https://travis-ci.org/merhard/permitter.png?branch=master" alt="Build Status" />}[https://travis-ci.org/merhard/permitter]
+{<img src="https://travis-ci.org/merhard/permitter.png?branch=master" alt="Build Status" />}[https://travis-ci.org/merhard/permitter]  {<img src="https://codeclimate.com/github/merhard/permitter.png" />}[https://codeclimate.com/github/merhard/permitter]
 
 Here are some instructions for setting up Permitter. Try this out and provide feedback in the {issue tracker}[https://github.com/merhard/permitter/issues].
 
