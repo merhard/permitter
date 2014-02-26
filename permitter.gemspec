@@ -9,6 +9,7 @@ Gem::Specification.new do |s|
   s.version     = Permitter::VERSION
   s.author      = "Matthew Erhard"
   s.email       = "merhard@gmail.com"
+  s.licenses    = ["MIT"]
   s.homepage    = "http://github.com/merhard/permitter"
   s.summary     = "Simple Rails 4 authorization solution."
   s.description = "Simple Rails 4 authorization solution for developer to permit user allowances. Developer whitelists controller actions and resources per user type."
@@ -18,12 +19,12 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 1.9.3'
 
-  s.add_dependency "rails", "~> 4.0.0"
-  s.add_dependency "squeel", "~> 1.1.1"
+  s.add_dependency "rails", "~> 4.0"
+  s.add_dependency "squeel", "~> 1.1"
 
-  s.add_development_dependency "sqlite3", "~> 1.3.8"
-  s.add_development_dependency "rspec-rails", "~> 2.14.0"
-  s.add_development_dependency "factory_girl_rails", "~> 4.3.0"
-  s.add_development_dependency "pry", "~> 0.9.12.4"
-  s.add_development_dependency "simplecov", "~> 0.8.2"
+  s.add_development_dependency "sqlite3", "~> 1.3"
+  s.add_development_dependency "rspec-rails", "~> 2.14"
+  s.add_development_dependency "factory_girl_rails", "~> 4.3"
+  s.add_development_dependency "pry", "~> 0.9"
+  s.add_development_dependency "simplecov", "~> 0.8"
 end
