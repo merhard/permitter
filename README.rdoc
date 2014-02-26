@@ -10,7 +10,7 @@ Permitter expects your controllers to have a +current_user+ method. Add some aut
 
 To install Permitter, add it to your +Gemfile+ and run the +bundle+ command.
 
-  gem "permitter", git: "git://github.com/merhard/permitter.git"
+  gem "permitter"
 
 Next generate a Permission class, this is where your permissions will be defined.
 
