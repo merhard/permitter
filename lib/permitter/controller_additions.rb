@@ -12,11 +12,11 @@ module Permitter
       delegate :allowed_param?, to: :current_permissions
       helper_method :allowed_param?
 
-
       private
 
       def authorize_user!
-        if current_permissions.allowed_action?(params[:controller], params[:action], current_resource)
+        args = [params[:controller], params[:action], current_resource]
+        if current_permissions.allowed_action?(*args)
           current_permissions.permit_params!(params)
         else
           raise Permitter::Unauthorized
@@ -32,7 +32,6 @@ module Permitter
       end
 
     end
-
   end
 end
 

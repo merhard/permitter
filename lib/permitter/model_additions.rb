@@ -7,18 +7,25 @@ module Permitter
     end
 
     module ClassMethods
-
       def permitted_by(permissions, action = :show)
-        status = permissions.allow_all? ? true : permissions.allowed_action(self.table_name, action)
-
-        if status.class == Proc
-          where(&status)
+        if permissions.allow_all?
+          all
         else
-          status ? all : none
+          permitted_relation(permissions.allowed_action(table_name, action))
         end
-
       end
 
+      private
+
+      def permitted_relation(allowed_action)
+        if allowed_action.class == Proc
+          where(&allowed_action)
+        elsif allowed_action.present?
+          all
+        else
+          none
+        end
+      end
     end
   end
 end

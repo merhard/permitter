@@ -1,12 +1,11 @@
 module Permitter
   module Permission
-
     def allowed_action?(controller, action, resource = nil)
       if allow_all?
         true
       elsif @allowed_actions
         allowed = @allowed_actions[[controller.to_s, action.to_s]]
-        (allowed && (allowed == true || resource && allowed.call(resource))) == true
+        !!(allowed && (allowed == true || resource && allowed.call(resource)))
       else
         false
       end
@@ -23,9 +22,7 @@ module Permitter
     end
 
     def allowed_action(controller, action)
-      if @allowed_actions
-        @allowed_actions[[controller.to_s, action.to_s]]
-      end
+      @allowed_actions[[controller.to_s, action.to_s]] if @allowed_actions
     end
 
     def allow_action(controllers, actions, &block)
@@ -67,6 +64,5 @@ module Permitter
         end
       end
     end
-
   end
 end

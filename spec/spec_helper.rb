@@ -1,14 +1,14 @@
 require 'simplecov'
 SimpleCov.start do
-  add_filter "/spec/"
+  add_filter '/spec/'
 end
 
 require 'rubygems'
 require 'bundler/setup'
 
-ENV["RAILS_ENV"] = "test"
+ENV['RAILS_ENV'] = 'test'
 
-require File.expand_path("../dummy/config/environment.rb",  __FILE__)
+require File.expand_path('../dummy/config/environment.rb',  __FILE__)
 
 require 'permitter'
 require 'permitter/matchers'
@@ -19,8 +19,6 @@ require 'rspec/autorun'
 require 'pry'
 
 FactoryGirl.find_definitions
-
-
 
 RSpec.configure do |config|
   config.treat_symbols_as_metadata_keys_with_true_values = true

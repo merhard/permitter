@@ -1,4 +1,4 @@
-require "spec_helper"
+require 'spec_helper'
 
 describe Permission do
   let(:admin) { build(:admin) }
@@ -7,21 +7,19 @@ describe Permission do
   let(:project1) { build(:project, user: user1) }
   let(:project2) { build(:project, user: user2) }
 
-
-  describe "as admin" do
+  describe 'as admin' do
     subject { Permission.new(admin) }
 
-    it "allows anything" do
+    it 'allows anything' do
       should allow_action(:anything, :here)
       should allow_param(:anything, :here)
     end
   end
 
-
-  describe "for user" do
+  describe 'for user' do
     subject { Permission.new(user1) }
 
-    it "projects" do
+    it 'projects' do
       should allow_action(:projects, :index)
       should allow_action(:projects, :new)
       should allow_action(:projects, :create)
@@ -47,11 +45,10 @@ describe Permission do
     end
   end
 
-
-  describe "for visitor" do
+  describe 'for visitor' do
     subject { Permission.new(nil) }
 
-    it "projects" do
+    it 'projects' do
       should allow_action(:projects, :index)
       should_not allow_action(:projects, :new)
       should_not allow_action(:projects, :create)
